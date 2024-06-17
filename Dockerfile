@@ -1,34 +1,5 @@
 # Начнем с базового образа Alpine
-FROM alpine:3.18
-
-ARG BUILD_DATE
-ARG VERSION
-ARG VCS_REF
-
-LABEL maintainer="AdGuard Team <devteam@adguard.com>" \
-    org.opencontainers.image.authors="AdGuard Team <devteam@adguard.com>" \
-    org.opencontainers.image.created=$BUILD_DATE \
-    org.opencontainers.image.description="Network-wide ads & trackers blocking DNS server" \
-    org.opencontainers.image.documentation="https://github.com/AdguardTeam/AdGuardHome/wiki/" \
-    org.opencontainers.image.licenses="GPL-3.0" \
-    org.opencontainers.image.revision=$VCS_REF \
-    org.opencontainers.image.source="https://github.com/AdguardTeam/AdGuardHome" \
-    org.opencontainers.image.title="AdGuard Home" \
-    org.opencontainers.image.url="https://adguard.com/en/adguard-home/overview.html" \
-    org.opencontainers.image.vendor="AdGuard" \
-    org.opencontainers.image.version=$VERSION
-
-# Установим необходимые пакеты для обоих сервисов
-RUN apk --no-cache add ca-certificates libcap tzdata dpkg dumb-init iptables wireguard-tools nodejs npm
-
-# Подготовим директории для AdGuardHome
-RUN mkdir -p /opt/adguardhome/conf /opt/adguardhome/work && \
-    chown -R nobody: /opt/adguardhome
-
-# Копируем бинарный файл AdGuardHome
-COPY --chown=nobody:nogroup ./docker/AdGuardHome/AdGuardHome /opt/adguardhome/AdGuardHome
-
-RUN setcap 'cap_net_bind_service=+eip' /opt/adguardhome/AdGuardHome
+FROM caddy:2.8.4-builder AS builder
 
 # Копируем и устанавливаем зависимости для wg-easy
 COPY src /app
